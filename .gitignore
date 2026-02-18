@@ -1,13 +1,16 @@
 # History files
+.Rproj.user
 .Rhistory
 .Rapp.history
 
 # Session Data files
 .RData
 .RDataTmp
+Thumbs.db
 
 # User-specific files
 .Ruserdata
+.DS_Store
 
 # Example code in package build process
 *-Ex.R
@@ -47,3 +50,17 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# --- Entorno renv ---
+library/
+renv/library/
+renv/python/
+renv/staging/
+renv/local/
+
+# --- DATA ---
+data/processed/*
+
+# --- Archivos temporales o logs ---
+/logs
+*.log
