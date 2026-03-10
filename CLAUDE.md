@@ -28,6 +28,7 @@ El sistema tiene dos partes:
 | dplyr | — | manipulación de datos |
 | purrr | — | iteración funcional |
 | rvest | — | scraping HTML |
+| jsonlite | — | consumo de la API de GitHub |
 | Shiny | — | app web (pendiente) |
 
 ---
@@ -63,7 +64,11 @@ Usar siempre `on.exit(unlink(temp))` para garantizar limpieza, no `finally`.
 
 ## Arquitectura del ETL (`etl/1_extract.R`)
 
-**Fuente de datos:**
+**Fuente de códigos:**
+- API de GitHub: `https://api.github.com/repos/ces-bcsf/CicSFE_GitHub/contents/indicadores`
+- `fetch_codigos()` filtra los `_out.xlsx` y excluye los `HP_*` (no son series)
+
+**Fuente de datos por indicador:**
 - Excel: `https://ces-bcsf.github.io/CicSFE_GitHub/indicadores/{codigo}_out.xlsx`
 - HTML:  `https://ces-bcsf.github.io/CicSFE_GitHub/indicadores/{codigo}_views.html`
 
@@ -71,9 +76,10 @@ Usar siempre `on.exit(unlink(temp))` para garantizar limpieza, no `finally`.
 - Hoja `Portada`: metadatos en col 3, filas 2/3/4/6 (nombre, um, fuente, id)
 - Hoja `Data`: col 1 = fecha, col 13 (M) = `g_final` (única columna de valores a usar)
 
-**Salida — dos tibbles:**
-- `$indicadores`: id, nombre, unidad_medida, fuente, fecha_ultimo_dato, frecuencia, resumen_coyuntura
-- `$datos`: id_indicador, fecha, valor (sin NAs)
+**Salida — archivos RDS en `data/processed/`:**
+- `indicadores.rds`: id, nombre, unidad_medida, fuente, fecha_ultimo_dato, frecuencia, resumen_coyuntura
+- `datos.rds`: id_indicador, fecha, valor (sin NAs)
+- La Shiny app los consume con `readRDS("data/processed/indicadores.rds")`
 
 Ver documentación completa en `docs/etl.md`.
 
@@ -84,7 +90,11 @@ Ver documentación completa en `docs/etl.md`.
 ```
 IndiCES-Alpha/
 ├── etl/
-│   └── 1_extract.R       # extracción y estructurado de datos
+│   └── 1_extract.R       # extracción y estructurado de datos (completo)
+├── data/
+│   └── processed/
+│       ├── indicadores.rds   # generado por el ETL
+│       └── datos.rds         # generado por el ETL
 ├── docs/
 │   └── etl.md            # documentación técnica del ETL
 ├── renv/                 # librería local de R (no editar)
@@ -99,7 +109,7 @@ La app Shiny irá en `app/` cuando se implemente.
 
 ## Git
 
-- Rama de desarrollo: `develop`
+- Rama de desarrollo: `feature/etl` (luego → `develop` → `main`)
 - Rama principal: `main`
 - Los PRs van de `develop` → `main`
 - Commits en español, descriptivos, sin `--no-verify`

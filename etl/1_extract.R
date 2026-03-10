@@ -4,25 +4,28 @@ box::use(
   purrr[map],
   utils[download.file],
   rvest[read_html, html_element, html_text2],
+  jsonlite[fromJSON],
 )
 
 # ==============================================================================
 # CONFIGURACION
 # ==============================================================================
 
-BASE_URL <- "https://ces-bcsf.github.io/CicSFE_GitHub/indicadores"
-
-INDICADORES <- c(
-  "ARG-IL5"#,
-  # agregar mas codigos aca:
-  # "SFE-RMP",
-  # "ARG-IGA",
-  # "USA-SYP" 
-)
+BASE_URL    <- "https://ces-bcsf.github.io/CicSFE_GitHub/indicadores"
+GITHUB_API  <- "https://api.github.com/repos/ces-bcsf/CicSFE_GitHub/contents/indicadores"
 
 # ==============================================================================
 # FUNCIONES
 # ==============================================================================
+
+#' Obtiene dinamicamente los codigos de todos los indicadores desde la API de GitHub
+#' Retorna un vector de strings con los codigos (ej: "ARG-IL5", "SFE-RMP")
+fetch_codigos <- function() {
+  archivos <- fromJSON(GITHUB_API)
+  nombres  <- archivos$name
+  xlsx     <- nombres[grepl("_out\\.xlsx$", nombres) & !grepl("^HP", nombres)]
+  sub("_out\\.xlsx$", "", xlsx)
+}
 
 #' Construye la URL del Excel dado el codigo del indicador
 build_excel_url <- function(codigo) {
@@ -115,6 +118,14 @@ process_indicator <- function(codigo) {
   )
 }
 
+#' Persiste los dos tibbles a data/processed/ como archivos RDS
+#' Crea el directorio si no existe
+write_output <- function(series) {
+  dir.create("data/processed", recursive = TRUE, showWarnings = FALSE)
+  saveRDS(series$indicadores, "data/processed/indicadores.rds")
+  saveRDS(series$datos,       "data/processed/datos.rds")
+}
+
 #' Carga todos los indicadores del vector INDICADORES
 #' Retorna una lista con $indicadores (tibble) y $datos (tibble)
 load_all_indicators <- function(codigos) {
@@ -130,7 +141,8 @@ load_all_indicators <- function(codigos) {
 # EJECUCION
 # ==============================================================================
 
-series <- load_all_indicators(INDICADORES)
+codigos <- fetch_codigos()
 
-series$indicadores
-series$datos
+series <- load_all_indicators(codigos)
+
+write_output(series)
