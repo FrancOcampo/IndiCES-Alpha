@@ -7,16 +7,14 @@ box::use(
   jsonlite[fromJSON],
 )
 
-# ==============================================================================
-# CONFIGURACION
-# ==============================================================================
+# CONFIGURACION ####
 
 BASE_URL    <- "https://ces-bcsf.github.io/CicSFE_GitHub/indicadores"
 GITHUB_API  <- "https://api.github.com/repos/ces-bcsf/CicSFE_GitHub/contents/indicadores"
+OUTPUT_DIR  <- "data/processed"
 
-# ==============================================================================
-# FUNCIONES
-# ==============================================================================
+
+# FUNCIONES ####
 
 #' Obtiene dinamicamente los codigos de todos los indicadores desde la API de GitHub
 #' Retorna un vector de strings con los codigos (ej: "ARG-IL5", "SFE-RMP")
@@ -70,6 +68,27 @@ extract_resumen <- function(codigo) {
   html_text2(nodo)
 }
 
+#' Convierte fechas en formato "YYYY.MM" o "YYYYT#" a Date
+#' "1994.01" -> 1994-01-01, "2007T1" -> 2007-01-01, "2007T2" -> 2007-04-01
+parse_fecha <- function(x) {
+  trimestral <- grepl("T", x)
+  fecha <- rep(as.Date(NA), length(x))
+
+  if (any(!trimestral)) {
+    fecha[!trimestral] <- as.Date(paste0(x[!trimestral], ".01"), format = "%Y.%m.%d")
+  }
+
+  if (any(trimestral)) {
+    partes <- strsplit(x[trimestral], "T")
+    anio   <- sapply(partes, `[`, 1)
+    trim   <- as.integer(sapply(partes, `[`, 2))
+    mes    <- sprintf("%02d", (trim - 1) * 3 + 1)
+    fecha[trimestral] <- as.Date(paste(anio, mes, "01", sep = "-"))
+  }
+
+  fecha
+}
+
 #' Extrae la serie de datos desde la hoja Data, sin NAs
 #' Retorna un tibble con columnas: id_indicador, fecha, valor
 extract_serie <- function(path, id_indicador) {
@@ -77,10 +96,10 @@ extract_serie <- function(path, id_indicador) {
 
   tibble(
     id_indicador = id_indicador,
-    fecha        = data[[1]],
+    fecha        = parse_fecha(data[[1]]),
     valor        = data[[13]],  # columna M = g_final
   ) |>
-    filter(!is.na(valor))
+    filter(!is.na(valor), !is.na(fecha))
 }
 
 #' Infiere la frecuencia de una serie a partir de la mediana de dias entre fechas
@@ -107,7 +126,7 @@ process_indicator <- function(codigo) {
   serie    <- extract_serie(temp, metadata$id)
 
   metadata <- bind_cols(metadata, tibble(
-    fecha_ultimo_dato = max(serie$fecha),
+    fecha_ultimo_dato = serie$fecha[[nrow(serie)]],
     frecuencia        = infer_frecuencia(serie$fecha),
     resumen_coyuntura = extract_resumen(codigo),
   ))
@@ -121,9 +140,9 @@ process_indicator <- function(codigo) {
 #' Persiste los dos tibbles a data/processed/ como archivos RDS
 #' Crea el directorio si no existe
 write_output <- function(series) {
-  dir.create("data/processed", recursive = TRUE, showWarnings = FALSE)
-  saveRDS(series$indicadores, "data/processed/indicadores.rds")
-  saveRDS(series$datos,       "data/processed/datos.rds")
+  if (!dir.exists(OUTPUT_DIR)) dir.create(OUTPUT_DIR, recursive = TRUE)
+  saveRDS(series$indicadores, file.path(OUTPUT_DIR, "indicadores.rds"))
+  saveRDS(series$datos,       file.path(OUTPUT_DIR, "datos.rds"))
 }
 
 #' Carga todos los indicadores del vector INDICADORES
@@ -137,9 +156,8 @@ load_all_indicators <- function(codigos) {
   )
 }
 
-# ==============================================================================
-# EJECUCION
-# ==============================================================================
+
+# EJECUCION ####
 
 codigos <- fetch_codigos()
 

@@ -13,7 +13,7 @@ en Ingeniería en Sistemas de Información — UTN Santa Fe.
 
 El sistema tiene dos partes:
 1. **ETL** — descarga, limpia y estructura los datos desde la web del CES
-2. **App Shiny** — visualiza los datos procesados (aún no implementada)
+2. **App Shiny** — visualiza los datos procesados (MVP funcional)
 
 ---
 
@@ -29,7 +29,10 @@ El sistema tiene dos partes:
 | purrr | — | iteración funcional |
 | rvest | — | scraping HTML |
 | jsonlite | — | consumo de la API de GitHub |
-| Shiny | — | app web (pendiente) |
+| Shiny | — | app web (MVP funcional) |
+| bslib | — | theming Bootstrap 5 para Shiny |
+| plotly | — | gráficos interactivos |
+| here | — | resolución de paths desde la raíz del proyecto |
 
 ---
 
@@ -55,7 +58,7 @@ library(dplyr)
 - Indentación: 2 espacios
 - Pipe: `|>` (nativo de R), no `%>%`
 - Documentación de funciones: comentarios `#'` sobre cada función
-- Trailing comma en tibbles y listas multilínea: sí
+- Trailing comma en tibbles y listas multilínea: sí (NO en funciones como `plot_ly()` — R no lo permite)
 
 ### Archivos temporales
 Usar siempre `on.exit(unlink(temp))` para garantizar limpieza, no `finally`.
@@ -85,25 +88,46 @@ Ver documentación completa en `docs/etl.md`.
 
 ---
 
+## Arquitectura de la App Shiny (`app/`)
+
+**Ejecución:** siempre desde la raíz del proyecto con `shiny::runApp("app")`
+
+**Módulos (en `app/modules/`):**
+- `data_loader.R` — lógica pura R: carga y filtra los RDS con `here()` para paths
+- `selector_ui.R` — módulo Shiny: dropdown de indicadores, muestra frecuencia y último dato
+- `chart_ui.R` — módulo Shiny: gráfico plotly de la serie temporal + descarga CSV
+- `info_ui.R` — módulo Shiny: panel de metadata (fuente, unidad, resumen de coyuntura)
+
+**Layout:** `bslib::page_sidebar` con selector en sidebar y tabs (Gráfico / Información) en panel principal.
+
+**Coordinación:** `app.R` ensambla los módulos. Los reactives se pasan como parámetros entre módulos, no hay imports laterales entre ellos.
+
+---
+
 ## Estructura de carpetas
 
 ```
 IndiCES-Alpha/
+├── app/
+│   ├── app.R              # punto de entrada de la app Shiny
+│   └── modules/
+│       ├── data_loader.R  # carga y filtrado de RDS
+│       ├── selector_ui.R  # selector de indicadores
+│       ├── chart_ui.R     # gráfico plotly
+│       └── info_ui.R      # panel de información
 ├── etl/
-│   └── 1_extract.R       # extracción y estructurado de datos (completo)
+│   └── 1_extract.R        # extracción y estructurado de datos
 ├── data/
 │   └── processed/
-│       ├── indicadores.rds   # generado por el ETL
-│       └── datos.rds         # generado por el ETL
+│       ├── indicadores.rds  # generado por el ETL
+│       └── datos.rds        # generado por el ETL
 ├── docs/
-│   └── etl.md            # documentación técnica del ETL
-├── renv/                 # librería local de R (no editar)
-├── renv.lock             # lockfile de dependencias
-├── CLAUDE.md             # este archivo
+│   └── etl.md             # documentación técnica del ETL
+├── renv/                  # librería local de R (no editar)
+├── renv.lock              # lockfile de dependencias
+├── CLAUDE.md              # este archivo
 └── README.md
 ```
-
-La app Shiny irá en `app/` cuando se implemente.
 
 ---
 
