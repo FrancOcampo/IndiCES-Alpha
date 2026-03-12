@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IndiCES</title>
+  {{ headContent() }}
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- ===== HEADER / NAVBAR ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="#" class="logo">
+        <!-- TODO: reemplazar con tu logo real -->
+        <span class="logo-icon">IndiCES</span>
+      </a>
+
+      <!-- Nav desktop -->
+      <nav class="nav-desktop">
+        <a href="#indicador">Indicador</a>
+        <a href="#grafico">Gr&aacute;fico</a>
+        <a href="#detalle">Detalle</a>
+      </nav>
+
+      <!-- Hamburguesa mobile -->
+      <button class="hamburger" id="hamburger-btn" aria-label="Men&uacute;">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <!-- Nav mobile (se abre con hamburguesa) -->
+    <nav class="nav-mobile" id="nav-mobile">
+      <a href="#indicador">Indicador</a>
+      <a href="#grafico">Gr&aacute;fico</a>
+      <a href="#detalle">Detalle</a>
+    </nav>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="container">
+      <!-- TODO: reemplazar con imagen de logo -->
+      <h1 class="hero-title">IndiCES</h1>
+      <p class="hero-subtitle">Indicadores económicos procesados por el <a href="https://www.bcsf.com.ar/ces/index.php"
+          target="_blank" rel="noopener noreferrer">Centro de Estudios y Servicios</a> de la <a
+          href="https://www.bcsf.com.ar" target="_blank" rel="noopener noreferrer">Bolsa de comercio de Santa Fe</a></p>
+    </div>
+  </section>
+
+  <!-- ===== SELECTOR DE INDICADOR ===== -->
+  <section class="section" id="indicador">
+    <div class="container">
+      <div class="selector-wrapper">
+        {{ selector }}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== METADATA PRINCIPAL ===== -->
+  <section class="section metadata-principal">
+    <div class="container">
+      {{ metadata_principal }}
+    </div>
+  </section>
+
+  <!-- ===== GRAFICO ===== -->
+  <section class="section" id="grafico">
+    <div class="container">
+      {{ grafico }}
+    </div>
+  </section>
+
+  <!-- ===== ACCIONES: PDF + MAS INFO ===== -->
+  <section class="section acciones">
+    <div class="container">
+      <div class="acciones-row">
+        {{ acciones }}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DETALLE / METADATA SECUNDARIA ===== -->
+  <section class="section" id="detalle">
+    <div class="container">
+      <div class="detalle-content">
+        {{ detalle }}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TEXTO EXPLICATIVO ===== -->
+  <section class="section explicativo">
+    <div class="container">
+      {{ explicativo }}
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2025 IndiCES &mdash; Centro de Estudios y Servicios, Santa Fe</p>
+      <p class="footer-creditos">
+        Tesina de grado &mdash; Ingenier&iacute;a en Sistemas de Informaci&oacute;n, UTN Santa Fe
+      </p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

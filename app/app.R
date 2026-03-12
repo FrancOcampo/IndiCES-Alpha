@@ -1,30 +1,26 @@
 box::use(
-  shiny[shinyApp, req, reactive],
-  bslib[page_sidebar, sidebar, navset_card_tab, nav_panel, bs_theme],
+  shiny[shinyApp, htmlTemplate, req, reactive],
   ./modules/data_loader[load_indicadores, load_datos, filter_datos],
   ./modules/selector_ui[selectorUI, selectorServer],
   ./modules/chart_ui[chartUI, chartServer],
-  ./modules/info_ui[infoUI, infoServer],
+  ./modules/metadata_ui[metadataPrincipalUI, metadataPrincipalServer,
+                         detalleUI, detalleServer,
+                         explicativoUI, explicativoServer],
+  ./modules/acciones_ui[accionesUI, accionesServer],
 )
 
 # Carga los datos una sola vez al arrancar
 indicadores <- load_indicadores()
 datos       <- load_datos()
 
-ui <- page_sidebar(
-  title = "IndiCES — Indicadores Económicos CES Santa Fe",
-  theme = bs_theme(version = 5, primary = "#1a6bb5"),
-
-  sidebar = sidebar(
-    width  = 300,
-    selectorUI("selector"),
-  ),
-
-  navset_card_tab(
-    full_screen = TRUE,
-    nav_panel("Gráfico",      chartUI("chart")),
-    nav_panel("Información",  infoUI("info")),
-  ),
+ui <- htmlTemplate(
+  "www/index.html",
+  selector           = selectorUI("selector"),
+  metadata_principal = metadataPrincipalUI("meta"),
+  grafico            = chartUI("chart"),
+  acciones           = accionesUI("acciones"),
+  detalle            = detalleUI("detalle"),
+  explicativo        = explicativoUI("explicativo"),
 )
 
 server <- function(input, output, session) {
@@ -41,7 +37,10 @@ server <- function(input, output, session) {
   })
 
   chartServer("chart", datos_rv, indicador_rv)
-  infoServer("info",  indicador_rv)
+  metadataPrincipalServer("meta", indicador_rv)
+  accionesServer("acciones", indicador_rv, datos_rv)
+  detalleServer("detalle", indicador_rv)
+  explicativoServer("explicativo", indicador_rv)
 }
 
 shinyApp(ui, server)

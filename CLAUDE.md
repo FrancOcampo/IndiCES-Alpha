@@ -92,15 +92,37 @@ Ver documentación completa en `docs/etl.md`.
 
 **Ejecución:** siempre desde la raíz del proyecto con `shiny::runApp("app")`
 
-**Módulos (en `app/modules/`):**
-- `data_loader.R` — lógica pura R: carga y filtra los RDS con `here()` para paths
-- `selector_ui.R` — módulo Shiny: dropdown de indicadores, muestra frecuencia y último dato
-- `chart_ui.R` — módulo Shiny: gráfico plotly de la serie temporal + descarga CSV
-- `info_ui.R` — módulo Shiny: panel de metadata (fuente, unidad, resumen de coyuntura)
+**UI custom:** La app usa `htmlTemplate()` con un HTML/CSS/JS propio (estilo Our World in Data).
+- `app/www/index.html` — template HTML con placeholders `{{ }}` para los módulos Shiny
+- `app/www/styles.css` — CSS responsivo (mobile-first, variables CSS)
+- `app/www/app.js` — JS para menú hamburguesa en mobile
 
-**Layout:** `bslib::page_sidebar` con selector en sidebar y tabs (Gráfico / Información) en panel principal.
+**Módulos (en `app/modules/`):**
+- `data_loader.R` — lógica pura R: carga y filtra los RDS con paths relativos
+- `selector_ui.R` — módulo Shiny: dropdown de indicadores
+- `chart_ui.R` — módulo Shiny: gráfico plotly de la serie temporal
+- `metadata_ui.R` — 3 módulos: tarjetas principales, detalle, texto explicativo (coyuntura)
+- `acciones_ui.R` — botones de Ver PDF, Más información, Descargar CSV
+- `info_ui.R` — (legacy, sin usar)
+
+**Datos:** los RDS se duplican en `app/data/processed/` para deploy a shinyapps.io.
+
+**Layout (scroll vertical, tipo artículo):**
+1. Header con navbar (desktop) / hamburguesa (mobile)
+2. Hero con logo
+3. Selector de indicador
+4. Metadata principal (nombre, último dato, frecuencia) en tarjetas
+5. Gráfico plotly
+6. Botones de acción (PDF, más info, CSV)
+7. Detalle (fuente, unidad, frecuencia)
+8. Resumen de coyuntura
+9. Footer
 
 **Coordinación:** `app.R` ensambla los módulos. Los reactives se pasan como parámetros entre módulos, no hay imports laterales entre ellos.
+
+**Deploy:** shinyapps.io con `rsconnect::deployApp("app", appName = "indices")`
+
+**Cache de box:** al modificar módulos, borrar `AppData/Local/R/cache/R/box` y reiniciar.
 
 ---
 
@@ -109,12 +131,20 @@ Ver documentación completa en `docs/etl.md`.
 ```
 IndiCES-Alpha/
 ├── app/
-│   ├── app.R              # punto de entrada de la app Shiny
-│   └── modules/
-│       ├── data_loader.R  # carga y filtrado de RDS
-│       ├── selector_ui.R  # selector de indicadores
-│       ├── chart_ui.R     # gráfico plotly
-│       └── info_ui.R      # panel de información
+│   ├── app.R              # punto de entrada (usa htmlTemplate)
+│   ├── data/
+│   │   └── processed/     # copia de RDS para deploy
+│   ├── modules/
+│   │   ├── data_loader.R  # carga y filtrado de RDS
+│   │   ├── selector_ui.R  # selector de indicadores
+│   │   ├── chart_ui.R     # gráfico plotly
+│   │   ├── metadata_ui.R  # tarjetas + detalle + texto explicativo
+│   │   ├── acciones_ui.R  # botones PDF, más info, CSV
+│   │   └── info_ui.R      # (legacy, sin usar)
+│   └── www/
+│       ├── index.html     # template HTML custom
+│       ├── styles.css     # CSS responsivo
+│       └── app.js         # JS menú hamburguesa
 ├── etl/
 │   └── 1_extract.R        # extracción y estructurado de datos
 ├── data/

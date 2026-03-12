@@ -1,0 +1,69 @@
+box::use(
+  shiny[NS, moduleServer, tagList, tags, uiOutput, renderUI, req, downloadButton,
+        downloadHandler],
+)
+
+#' UI de los botones de accion (PDF, mas info, descarga CSV)
+accionesUI <- function(id) {
+  ns <- NS(id)
+  tagList(
+    uiOutput(ns("botones")),
+    downloadButton(ns("descargar_csv"), "Descargar CSV", class = "btn-indices"),
+  )
+}
+
+#' Server de los botones de accion
+accionesServer <- function(id, indicador_rv, datos_rv) {
+  moduleServer(id, function(input, output, session) {
+    ns <- session$ns
+
+    output$botones <- renderUI({
+      ind <- indicador_rv()
+      req(!is.null(ind), nrow(ind) > 0)
+
+      codigo <- ind$id[[1]]
+
+      # TODO: reemplazar con la URL real del PDF del indicador
+      pdf_url <- paste0(
+        "https://ces-bcsf.github.io/CicSFE_GitHub/indicadores/",
+        codigo, "_plots.pdf"
+      )
+
+      # TODO: reemplazar con la URL real de "mas informacion"
+      mas_info_url <- paste0(
+        "https://ces-bcsf.github.io/CicSFE_GitHub/indicadores/",
+        codigo, "_views.html"
+      )
+
+      tagList(
+        tags$a(
+          href = pdf_url, target = "_blank",
+          class = "btn-indices btn-primary",
+          tags$svg(
+            xmlns = "http://www.w3.org/2000/svg", width = "16", height = "16",
+            fill = "currentColor", viewBox = "0 0 16 16",
+            tags$path(d = "M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"),
+            tags$path(d = "M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"),
+          ),
+          "Ver PDF"
+        ),
+        tags$a(
+          href = mas_info_url, target = "_blank",
+          class = "btn-indices",
+          tags$svg(
+            xmlns = "http://www.w3.org/2000/svg", width = "16", height = "16",
+            fill = "currentColor", viewBox = "0 0 16 16",
+            tags$path(d = "M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"),
+            tags$path(d = "M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"),
+          ),
+          "M\u00e1s informaci\u00f3n"
+        ),
+      )
+    })
+
+    output$descargar_csv <- downloadHandler(
+      filename = function() paste0(indicador_rv()$id, "_datos.csv"),
+      content  = function(file) utils::write.csv(datos_rv(), file, row.names = FALSE),
+    )
+  })
+}

@@ -1,0 +1,381 @@
+/* ===== RESET & BASE ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-primary: #1a6bb5;
+  --color-primary-dark: #13507f;
+  --color-text: #1d1f23;
+  --color-text-secondary: #6e7781;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f7f7f7;
+  --color-border: #e0e0e0;
+  --color-accent: #d4451a;
+  --font-sans: "Helvetica Neue", Arial, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+  --max-width: 840px;
+  --header-height: 56px;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-height);
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ===== HEADER ===== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  height: var(--header-height);
+}
+
+.header-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+}
+
+.logo {
+  text-decoration: none;
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.nav-desktop {
+  display: flex;
+  gap: 28px;
+}
+
+.nav-desktop a,
+.nav-mobile a {
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-desktop a:hover,
+.nav-mobile a:hover {
+  color: var(--color-primary);
+}
+
+/* Hamburguesa */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 5px;
+  padding: 4px;
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--color-text);
+  border-radius: 2px;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.nav-mobile {
+  display: none;
+  flex-direction: column;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  padding: 12px 20px 16px;
+  gap: 12px;
+}
+
+.nav-mobile.open {
+  display: flex;
+}
+
+/* ===== HERO ===== */
+.hero {
+  background: var(--color-bg-alt);
+  padding: 48px 0 40px;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hero-title {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+
+.hero-subtitle {
+  color: var(--color-text-secondary);
+  font-size: 1.05rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* ===== SECCIONES GENERICAS ===== */
+.section {
+  padding: 32px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* ===== SELECTOR ===== */
+.selector-wrapper {
+  max-width: 100%;
+}
+
+.selector-wrapper .form-group,
+.selector-wrapper .selectize-control {
+  width: 100%;
+}
+
+/* Estilo del selectize (Shiny lo inyecta) */
+.selector-wrapper .selectize-input {
+  width: 100%;
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  box-shadow: none;
+  transition: border-color 0.2s;
+}
+
+.selector-wrapper .selectize-input.focus {
+  border-color: var(--color-primary);
+}
+
+/* ===== METADATA PRINCIPAL ===== */
+.meta-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.meta-card {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.meta-card-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: 4px;
+}
+
+.meta-card-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* ===== GRAFICO ===== */
+#grafico .container {
+  /* plotly necesita un poco mas de espacio */
+}
+
+/* ===== ACCIONES ===== */
+.acciones {
+  border-bottom: none;
+  padding: 20px 0;
+}
+
+.acciones-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-indices {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  border: 2px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.btn-indices:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-indices.btn-primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.btn-indices.btn-primary:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+/* ===== DETALLE ===== */
+.detalle-content dl {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px 16px;
+}
+
+.detalle-content dt {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.detalle-content dd {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* ===== TEXTO EXPLICATIVO ===== */
+.explicativo {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.explicativo h3 {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+  color: var(--color-text);
+}
+
+.explicativo p {
+  color: var(--color-text-secondary);
+  text-align: justify;
+  line-height: 1.7;
+}
+
+/* ===== FOOTER ===== */
+.site-footer {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.footer-creditos {
+  margin-top: 4px;
+  font-size: 0.8rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .nav-desktop {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .site-header {
+    height: auto;
+    min-height: var(--header-height);
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .meta-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .detalle-content dl {
+    grid-template-columns: 1fr;
+    gap: 4px 0;
+  }
+
+  .detalle-content dt {
+    margin-top: 8px;
+  }
+
+  .acciones-row {
+    flex-direction: column;
+  }
+
+  .btn-indices {
+    justify-content: center;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .section {
+    padding: 24px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 32px 0 28px;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+}

@@ -16,12 +16,6 @@ selectorUI <- function(id) {
       choices  = NULL,
       options  = list(placeholder = "Seleccioná un indicador...")
     ),
-    tags$p(
-      tags$small(tags$b("Frecuencia: "), textOutput(ns("frecuencia"), inline = TRUE)),
-    ),
-    tags$p(
-      tags$small(tags$b("Último dato: "), textOutput(ns("ultimo_dato"), inline = TRUE)),
-    ),
   )
 }
 
@@ -35,14 +29,6 @@ selectorServer <- function(id, indicadores) {
     seleccionado <- reactive({
       req(input$indicador)
       indicadores[indicadores$id == input$indicador, ]
-    })
-
-    output$frecuencia <- renderText({
-      seleccionado()$frecuencia[[1]]
-    })
-
-    output$ultimo_dato <- renderText({
-      format(seleccionado()$fecha_ultimo_dato[[1]], "%B %Y")
     })
 
     reactive(input$indicador)

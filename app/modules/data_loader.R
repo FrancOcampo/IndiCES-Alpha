@@ -1,18 +1,17 @@
 box::use(
-  here[here],
   dplyr[filter],
 )
 
 #' Carga el tibble de indicadores desde el RDS
 #' Retorna un tibble con una fila por indicador
 load_indicadores <- function() {
-  readRDS(here("data/processed/indicadores.rds"))
+  readRDS("data/processed/indicadores.rds")
 }
 
 #' Carga el tibble completo de datos desde el RDS
 #' Retorna un tibble con una fila por observación
 load_datos <- function() {
-  readRDS(here("data/processed/datos.rds"))
+  readRDS("data/processed/datos.rds")
 }
 
 #' Filtra las observaciones de un indicador dado su id
