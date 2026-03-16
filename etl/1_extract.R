@@ -48,10 +48,11 @@ extract_metadata <- function(path) {
   portada <- read_excel(path, sheet = "Portada", col_names = FALSE)
 
   tibble(
-    id            = as.character(portada[[3]][6]),
-    nombre        = as.character(portada[[3]][2]),
-    unidad_medida = as.character(portada[[3]][3]),
-    fuente        = as.character(portada[[3]][4]),
+    id                      = as.character(portada[[3]][6]),
+    nombre                  = as.character(portada[[3]][2]),
+    unidad_medida           = as.character(portada[[3]][3]),
+    fuente                  = as.character(portada[[3]][4]),
+    clasificacion_sectorial = as.character(portada[[3]][5]),
   )
 }
 

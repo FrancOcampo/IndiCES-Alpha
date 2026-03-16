@@ -7,14 +7,21 @@ box::use(
 )
 
 #' UI del selector de indicadores
+#' Incluye un selector de clasificación sectorial que filtra el selector de indicadores
 selectorUI <- function(id) {
   ns <- NS(id)
   tagList(
     selectizeInput(
+      ns("sector"),
+      label   = "Clasificación sectorial",
+      choices = NULL,
+      options = list(placeholder = "Seleccioná un sector...")
+    ),
+    selectizeInput(
       ns("indicador"),
-      label    = "Indicador",
-      choices  = NULL,
-      options  = list(placeholder = "Seleccioná un indicador...")
+      label   = "Indicador",
+      choices = NULL,
+      options = list(placeholder = "Seleccioná un indicador...")
     ),
   )
 }
@@ -23,12 +30,14 @@ selectorUI <- function(id) {
 #' Recibe el tibble de indicadores y retorna un reactive con el id seleccionado
 selectorServer <- function(id, indicadores) {
   moduleServer(id, function(input, output, session) {
-    choices <- setNames(indicadores$id, indicadores$nombre)
-    updateSelectizeInput(session, "indicador", choices = choices, server = TRUE)
+    sectores <- sort(unique(indicadores$clasificacion_sectorial))
+    updateSelectizeInput(session, "sector", choices = sectores, selected = "Producto y actividad económica")
 
-    seleccionado <- reactive({
-      req(input$indicador)
-      indicadores[indicadores$id == input$indicador, ]
+    observe({
+      req(input$sector)
+      filtrados <- indicadores[indicadores$clasificacion_sectorial == input$sector, ]
+      choices   <- setNames(filtrados$id, filtrados$nombre)
+      updateSelectizeInput(session, "indicador", choices = choices)
     })
 
     reactive(input$indicador)

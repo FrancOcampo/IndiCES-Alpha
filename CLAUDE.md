@@ -80,7 +80,7 @@ Usar siempre `on.exit(unlink(temp))` para garantizar limpieza, no `finally`.
 - Hoja `Data`: col 1 = fecha, col 13 (M) = `g_final` (única columna de valores a usar)
 
 **Salida — archivos RDS en `data/processed/`:**
-- `indicadores.rds`: id, nombre, unidad_medida, fuente, fecha_ultimo_dato, frecuencia, resumen_coyuntura
+- `indicadores.rds`: id, nombre, unidad_medida, fuente, fecha_ultimo_dato, frecuencia, resumen_coyuntura, clasificacion_sectorial
 - `datos.rds`: id_indicador, fecha, valor (sin NAs)
 - La Shiny app los consume con `readRDS("data/processed/indicadores.rds")`
 
@@ -178,3 +178,9 @@ IndiCES-Alpha/
 - No dejar archivos temporales sin limpiar
 - No modificar nada dentro de `renv/` manualmente
 - No commitear sin que el usuario lo pida explícitamente
+- Cuando se modifique el ETL, regenerar los RDS y copiarlos a `app/data/processed/`:
+  ```r
+  source("etl/1_extract.R")
+  file.copy("data/processed/indicadores.rds", "app/data/processed/indicadores.rds", overwrite = TRUE)
+  file.copy("data/processed/datos.rds",       "app/data/processed/datos.rds",       overwrite = TRUE)
+  ```
