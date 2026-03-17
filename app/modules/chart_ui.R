@@ -1,5 +1,5 @@
 box::use(
-  shiny[NS, moduleServer, req],
+  shiny[NS, moduleServer, req, validate, need],
   plotly[plot_ly, layout, plotlyOutput, renderPlotly, config],
 )
 
@@ -17,15 +17,15 @@ chartServer <- function(id, datos_rv, indicador_rv) {
       req(datos_rv(), indicador_rv())
       datos     <- datos_rv()
       indicador <- indicador_rv()
-      req(nrow(datos) > 0)
+      validate(need(nrow(datos) > 0, "No hay datos disponibles para este indicador."))
 
       plot_ly(datos, x = ~fecha, y = ~valor, type = "scatter", mode = "lines",
-        line    = list(color = "#1a6bb5", width = 2),
+        line    = list(color = "#000", width = 2),
         hovertemplate = paste0("<b>%{x|%b %Y}</b><br>", indicador$unidad_medida, ": %{y}<extra></extra>")
       ) |>
         layout(
           title  = list(text = indicador$nombre, font = list(size = 14)),
-          xaxis  = list(title = "", showgrid = FALSE),
+          xaxis  = list(title = "", showgrid = TRUE),
           yaxis  = list(title = indicador$unidad_medida, showgrid = TRUE, gridcolor = "#e9ecef"),
           paper_bgcolor = "white",
           plot_bgcolor  = "white",

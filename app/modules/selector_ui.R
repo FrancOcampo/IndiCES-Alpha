@@ -30,13 +30,17 @@ selectorUI <- function(id) {
 #' Recibe el tibble de indicadores y retorna un reactive con el id seleccionado
 selectorServer <- function(id, indicadores) {
   moduleServer(id, function(input, output, session) {
-    sectores <- sort(unique(indicadores$clasificacion_sectorial))
+    sectores <- c("Todas", sort(unique(indicadores$clasificacion_sectorial)))
     updateSelectizeInput(session, "sector", choices = sectores, selected = "Producto y actividad económica")
 
     observe({
       req(input$sector)
-      filtrados <- indicadores[indicadores$clasificacion_sectorial == input$sector, ]
-      choices   <- setNames(filtrados$id, filtrados$nombre)
+      filtrados <- if (input$sector == "Todas") {
+        indicadores
+      } else {
+        indicadores[indicadores$clasificacion_sectorial == input$sector, ]
+      }
+      choices <- setNames(filtrados$id, paste0(filtrados$id, " | ", filtrados$nombre))
       updateSelectizeInput(session, "indicador", choices = choices)
     })
 

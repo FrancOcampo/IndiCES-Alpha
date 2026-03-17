@@ -56,17 +56,56 @@ extract_metadata <- function(path) {
   )
 }
 
-#' Extrae el texto del div.info-box que sigue al h2 "Resumen de coyuntura"
-#' Retorna un string con el resumen, o NA si no se encuentra
-extract_resumen <- function(codigo) {
-  html <- read_html(build_html_url(codigo))
+#' Descarga y parsea el HTML del indicador. Retorna el objeto html de rvest.
+fetch_html <- function(codigo) {
+  read_html(build_html_url(codigo))
+}
 
+# Versión original (toma codigo, descarga el HTML internamente):
+# extract_resumen <- function(codigo) {
+#   html <- read_html(build_html_url(codigo))
+#   nodo <- html_element(
+#     html,
+#     xpath = "//h2[normalize-space(.)='Resumen de coyuntura']/following-sibling::div[contains(@class,'info-box')][1]"
+#   )
+#   html_text2(nodo)
+# }
+
+#' Extrae el texto del div.info-box que sigue al h2 "Resumen de coyuntura"
+#' Recibe el objeto html ya parseado. Retorna un string o NA si no se encuentra.
+extract_resumen <- function(html) {
   nodo <- html_element(
     html,
     xpath = "//h2[normalize-space(.)='Resumen de coyuntura']/following-sibling::div[contains(@class,'info-box')][1]"
   )
 
   html_text2(nodo)
+}
+
+#' Extrae la descripción del indicador desde el HTML ya parseado
+#' Busca el <h3> cuyo <b> dice "Descripción" y retorna el texto después del |
+extract_descripcion <- function(html) {
+  nodo  <- html_element(html, xpath = "//h3[b[normalize-space(.)='Descripción']]")
+  texto <- html_text2(nodo)
+  trimws(sub("^[^|]+\\|", "", texto))
+}
+
+extract_codigo_str <- function(html) {
+  nodo  <- html_element(html, xpath = "//h3[b[normalize-space(.)='Código']]")
+  texto <- html_text2(nodo)
+  trimws(sub("^[^|]+\\|", "", texto))
+}
+
+extract_um_str <- function(html) {
+  nodo  <- html_element(html, xpath = "//h3[b[normalize-space(.)='Unidad de medida']]")
+  texto <- html_text2(nodo)
+  trimws(sub("^[^|]+\\|", "", texto))
+}
+
+extract_fuente_primaria_str <- function(html) {
+  nodo  <- html_element(html, xpath = "//h3[b[normalize-space(.)='Fuente primaria']]")
+  texto <- html_text2(nodo)
+  trimws(sub("^[^|]+\\|", "", texto))
 }
 
 #' Convierte fechas en formato "YYYY.MM" o "YYYYT#" a Date
@@ -123,13 +162,18 @@ process_indicator <- function(codigo) {
   temp <- download_excel(build_excel_url(codigo))
   on.exit(unlink(temp))
 
+  html     <- fetch_html(codigo)  # descarga el HTML una sola vez
   metadata <- extract_metadata(temp)
   serie    <- extract_serie(temp, metadata$id)
 
   metadata <- bind_cols(metadata, tibble(
-    fecha_ultimo_dato = serie$fecha[[nrow(serie)]],
-    frecuencia        = infer_frecuencia(serie$fecha),
-    resumen_coyuntura = extract_resumen(codigo),
+    fecha_ultimo_dato   = serie$fecha[[nrow(serie)]],
+    frecuencia          = infer_frecuencia(serie$fecha),
+    descripcion_str     = extract_descripcion(html),
+    codigo_str          = extract_codigo_str(html),
+    um_str              = extract_um_str(html),
+    fuente_primaria_str = extract_fuente_primaria_str(html),
+    resumen_coyuntura   = extract_resumen(html),
   ))
 
   list(
