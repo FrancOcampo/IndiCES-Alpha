@@ -17,4 +17,29 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+
+  // Scrollspy
+  var sections = document.querySelectorAll("section[id]");
+  var navLinks = document.querySelectorAll(".nav-desktop a[href^='#'], .nav-mobile a[href^='#']");
+
+  if (sections.length && navLinks.length) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          navLinks.forEach(function (link) {
+            link.classList.toggle(
+              "nav-active",
+              link.getAttribute("href") === "#" + entry.target.id
+            );
+          });
+        }
+      });
+    }, {
+      rootMargin: "-40% 0px -55% 0px"
+    });
+
+    sections.forEach(function (section) {
+      observer.observe(section);
+    });
+  }
 });

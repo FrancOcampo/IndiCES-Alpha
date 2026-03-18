@@ -79,8 +79,13 @@ Usar siempre `on.exit(unlink(temp))` para garantizar limpieza, no `finally`.
 - Hoja `Portada`: metadatos en col 3, filas 2/3/4/6 (nombre, um, fuente, id)
 - Hoja `Data`: col 1 = fecha, col 13 (M) = `g_final` (única columna de valores a usar)
 
+**Estructura del HTML (`{codigo}_views.html`):**
+- `fetch_html(codigo)` descarga y parsea el HTML — llamar una sola vez por indicador y pasar el objeto a las funciones
+- `extract_resumen(html)` — div.info-box tras el h2 "Resumen de coyuntura"
+- `extract_descripcion(html)`, `extract_codigo_str(html)`, `extract_um_str(html)`, `extract_fuente_primaria_str(html)` — h3 con `<b>Etiqueta</b> | valor` tras el segundo `<hr>`
+
 **Salida — archivos RDS en `data/processed/`:**
-- `indicadores.rds`: id, nombre, unidad_medida, fuente, fecha_ultimo_dato, frecuencia, resumen_coyuntura, clasificacion_sectorial
+- `indicadores.rds`: id, nombre, unidad_medida, fuente, clasificacion_sectorial, fecha_ultimo_dato, frecuencia, resumen_coyuntura, descripcion_str, codigo_str, um_str, fuente_primaria_str
 - `datos.rds`: id_indicador, fecha, valor (sin NAs)
 - La Shiny app los consume con `readRDS("data/processed/indicadores.rds")`
 
@@ -94,16 +99,16 @@ Ver documentación completa en `docs/etl.md`.
 
 **UI custom:** La app usa `htmlTemplate()` con un HTML/CSS/JS propio (estilo Our World in Data).
 - `app/www/index.html` — template HTML con placeholders `{{ }}` para los módulos Shiny
-- `app/www/styles.css` — CSS responsivo (mobile-first, variables CSS)
-- `app/www/app.js` — JS para menú hamburguesa en mobile
+- `app/www/styles.css` — CSS responsivo (mobile-first, variables CSS, paleta verde CES #0c4c1c)
+- `app/www/app.js` — JS: menú hamburguesa mobile + scrollspy con IntersectionObserver
+- `app/www/logo_marca_minima_indicadores_sf.svg` — logo del proyecto (favicon + header + hero)
 
 **Módulos (en `app/modules/`):**
 - `data_loader.R` — lógica pura R: carga y filtra los RDS con paths relativos
-- `selector_ui.R` — módulo Shiny: dropdown de indicadores
-- `chart_ui.R` — módulo Shiny: gráfico plotly de la serie temporal
+- `selector_ui.R` — módulo Shiny: dropdown de indicadores con filtro sectorial ("Todas" + sectores)
+- `chart_ui.R` — módulo Shiny: gráfico plotly de la serie temporal (muestra mensaje si no hay datos)
 - `metadata_ui.R` — 3 módulos: tarjetas principales, detalle, texto explicativo (coyuntura)
 - `acciones_ui.R` — botones de Ver PDF, Más información, Descargar CSV
-- `info_ui.R` — (legacy, sin usar)
 
 **Datos:** los RDS se duplican en `app/data/processed/` para deploy a shinyapps.io.
 
@@ -120,7 +125,7 @@ Ver documentación completa en `docs/etl.md`.
 
 **Coordinación:** `app.R` ensambla los módulos. Los reactives se pasan como parámetros entre módulos, no hay imports laterales entre ellos.
 
-**Deploy:** shinyapps.io con `rsconnect::deployApp("app", appName = "indices")`
+**Deploy:** shinyapps.io con `rsconnect::deployApp("app", appName = "indicesApp")`
 
 **Cache de box:** al modificar módulos, borrar `AppData/Local/R/cache/R/box` y reiniciar.
 
@@ -139,8 +144,7 @@ IndiCES-Alpha/
 │   │   ├── selector_ui.R  # selector de indicadores
 │   │   ├── chart_ui.R     # gráfico plotly
 │   │   ├── metadata_ui.R  # tarjetas + detalle + texto explicativo
-│   │   ├── acciones_ui.R  # botones PDF, más info, CSV
-│   │   └── info_ui.R      # (legacy, sin usar)
+│   │   └── acciones_ui.R  # botones PDF, más info, CSV
 │   └── www/
 │       ├── index.html     # template HTML custom
 │       ├── styles.css     # CSS responsivo
@@ -151,8 +155,12 @@ IndiCES-Alpha/
 │   └── processed/
 │       ├── indicadores.rds  # generado por el ETL
 │       └── datos.rds        # generado por el ETL
+├── .github/
+│   └── workflows/
+│       └── etl.yml        # GitHub Actions: ETL automático cada lunes
 ├── docs/
-│   └── etl.md             # documentación técnica del ETL
+│   ├── etl.md             # documentación técnica del ETL
+│   └── ci-cd.md           # documentación del pipeline de CI/CD
 ├── renv/                  # librería local de R (no editar)
 ├── renv.lock              # lockfile de dependencias
 ├── CLAUDE.md              # este archivo
@@ -161,9 +169,23 @@ IndiCES-Alpha/
 
 ---
 
+## CI/CD
+
+El ETL corre automáticamente cada lunes via GitHub Actions (`.github/workflows/etl.yml`):
+1. Ejecuta `etl/1_extract.R`
+2. Copia los RDS a `app/data/processed/`
+3. Commitea los datos si cambiaron
+4. Redeploya a shinyapps.io
+
+Requiere tres secrets en el repo: `SHINYAPPS_ACCOUNT`, `SHINYAPPS_TOKEN`, `SHINYAPPS_SECRET`.
+Ver documentación completa en `docs/ci-cd.md`.
+
+---
+
 ## Git
 
-- Rama de desarrollo: `feature/etl` (luego → `develop` → `main`)
+- Rama de desarrollo activa: crear `feature/<nombre>` desde `develop`
+- Flujo: `feature/*` → PR a `develop` → PR a `main`
 - Rama principal: `main`
 - Los PRs van de `develop` → `main`
 - Commits en español, descriptivos, sin `--no-verify`

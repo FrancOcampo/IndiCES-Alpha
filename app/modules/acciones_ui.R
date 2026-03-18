@@ -36,7 +36,7 @@ accionesServer <- function(id, indicador_rv, datos_rv) {
       tagList(
         tags$a(
           href = mas_info_url, target = "_blank",
-          class = "btn-indices",
+          class = "btn-indices btn-primary",
           tags$svg(
             xmlns = "http://www.w3.org/2000/svg", width = "16", height = "16",
             fill = "currentColor", viewBox = "0 0 16 16",
@@ -47,7 +47,7 @@ accionesServer <- function(id, indicador_rv, datos_rv) {
         ),
         tags$a(
           href = pdf_url, target = "_blank",
-          class = "btn-indices btn-primary",
+          class = "btn-indices",
           tags$svg(
             xmlns = "http://www.w3.org/2000/svg", width = "16", height = "16",
             fill = "currentColor", viewBox = "0 0 16 16",

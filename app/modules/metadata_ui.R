@@ -1,5 +1,5 @@
 box::use(
-  shiny[NS, moduleServer, tagList, tags, uiOutput, renderUI, req],
+  shiny[NS, moduleServer, tagList, tags, uiOutput, renderUI, req, HTML],
 )
 
 #' FUNCION QUE CONVIERTE UN STRING EN SENTENCE CASE
@@ -29,7 +29,9 @@ metadataPrincipalServer <- function(id, indicador_rv) {
   moduleServer(id, function(input, output, session) {
     output$cards <- renderUI({
       ind <- indicador_rv()
-      req(!is.null(ind), nrow(ind) > 0)
+      if (is.null(ind) || nrow(ind) == 0) {
+        return(tags$p(class = "empty-state", "Seleccioná un indicador para ver sus datos."))
+      }
       
       
       frecuencia_selected <- str_to_sentence_case(ind$frecuencia[[1]])
@@ -80,16 +82,6 @@ detalleServer <- function(id, indicador_rv) {
         tags$dt("Fuente primaria"),
         tags$dd(ind$fuente_primaria_str[[1]]),
       )
-      # tags$dl(
-      #   tags$dt("Fuente"),
-      #   tags$dd(ind$fuente[[1]]),
-      #   tags$dt("Unidad de medida"),
-      #   tags$dd(ind$unidad_medida[[1]]),
-      #   tags$dt("Frecuencia"),
-      #   tags$dd(ind$frecuencia[[1]]),
-      #   tags$dt("\u00DAltimo dato disponible"),
-      #   tags$dd(format(ind$fecha_ultimo_dato[[1]], "%B %Y")),
-      # )
     })
   })
 }
@@ -115,7 +107,7 @@ explicativoServer <- function(id, indicador_rv) {
 
       tagList(
         tags$h3("Resumen de coyuntura"),
-        tags$p(resumen),
+        HTML(resumen),
       )
     })
   })

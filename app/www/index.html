@@ -5,8 +5,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>IndiCES</title>
+  <link rel="icon" type="image/svg+xml" href="logo_marca_minima_indicadores_sf.svg">
   {{ headContent() }}
   <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap"
+    rel="stylesheet">
 </head>
 
 <body>
@@ -15,8 +21,8 @@
   <header class="site-header">
     <div class="header-inner">
       <a href="#" class="logo">
-        <!-- TODO: reemplazar con tu logo real -->
-        <span class="logo-icon">IndiCES</span>
+        <img src="logo_marca_minima_indicadores_sf.svg" alt="" class="logo-img">
+        <span class="logo-text">IndiCES</span>
       </a>
 
       <!-- Nav desktop -->
@@ -45,7 +51,7 @@
   <!-- ===== HERO ===== -->
   <section class="hero">
     <div class="container">
-      <!-- TODO: reemplazar con imagen de logo -->
+      <img src="logo_marca_minima_indicadores_sf.svg" alt="IndiCES" class="hero-logo">
       <h1 class="hero-title">IndiCES</h1>
       <p class="hero-subtitle">Indicadores económicos procesados por el <a href="https://www.bcsf.com.ar/ces/index.php"
           target="_blank" rel="noopener noreferrer">Centro de Estudios y Servicios</a> de la <a
@@ -56,6 +62,7 @@
   <!-- ===== SELECTOR DE INDICADOR ===== -->
   <section class="section" id="indicador">
     <div class="container">
+      <p class="section-label">Seleccioná un indicador</p>
       <div class="selector-wrapper">
         {{ selector }}
       </div>
@@ -72,6 +79,7 @@
   <!-- ===== GRAFICO ===== -->
   <section class="section" id="grafico">
     <div class="container">
+      <p class="section-label">Evolución histórica</p>
       {{ grafico }}
     </div>
   </section>
@@ -88,6 +96,7 @@
   <!-- ===== DETALLE / METADATA SECUNDARIA ===== -->
   <section class="section" id="detalle">
     <div class="container">
+      <p class="section-label">Ficha del indicador</p>
       <div class="detalle-content">
         {{ detalle }}
       </div>
@@ -105,9 +114,9 @@
   <footer class="site-footer">
     <div class="container">
       <p>&copy; 2025 IndiCES &mdash; Centro de Estudios y Servicios, Santa Fe</p>
-      <!-- <p class="footer-creditos">
-        Tesina de grado &mdash; Ingenier&iacute;a en Sistemas de Informaci&oacute;n, UTN Santa Fe
-      </p> -->
+      <p class="footer-creditos">
+        Franco Ocampo | Proyecto de pregrado &mdash; Analista en Sistemas de Informaci&oacute;n, UTN Santa Fe ⵥ
+      </p>
     </div>
   </footer>
 

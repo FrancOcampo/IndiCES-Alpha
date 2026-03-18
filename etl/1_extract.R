@@ -4,6 +4,7 @@ box::use(
   purrr[map],
   utils[download.file],
   rvest[read_html, html_element, html_text2],
+  xml2[xml_contents],
   jsonlite[fromJSON],
 )
 
@@ -79,7 +80,7 @@ extract_resumen <- function(html) {
     xpath = "//h2[normalize-space(.)='Resumen de coyuntura']/following-sibling::div[contains(@class,'info-box')][1]"
   )
 
-  html_text2(nodo)
+  paste(as.character(xml_contents(nodo)), collapse = "")
 }
 
 #' Extrae la descripción del indicador desde el HTML ya parseado

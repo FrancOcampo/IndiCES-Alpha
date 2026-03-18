@@ -41,6 +41,7 @@ económicos publicados por el CES Santa Fe.
 `BASE_URL = https://ces-bcsf.github.io/CicSFE_GitHub/indicadores`
 
 Los archivos se publican y actualizan todos los lunes.
+El ETL se ejecuta automáticamente cada lunes via GitHub Actions. Ver `docs/ci-cd.md`.
 
 ---
 
@@ -84,7 +85,7 @@ Un tibble con una fila por indicador:
 | `fuente` | chr | Organismo fuente del dato |
 | `fecha_ultimo_dato` | Date | Fecha de la última observación disponible |
 | `frecuencia` | chr | `"mensual"`, `"trimestral"`, `"anual"`, etc. |
-| `resumen_coyuntura` | chr | Texto extraído del reporte HTML |
+| `resumen_coyuntura` | chr | HTML interno del div.info-box (preserva `.data-positive`/`.data-negative`) |
 
 ### `$datos`
 Un tibble con una fila por observación:
@@ -115,9 +116,10 @@ campos base del indicador.
 Lee la hoja `Data`, selecciona fecha y `g_final`, descarta NAs y retorna
 el tibble de observaciones.
 
-### `extract_resumen(codigo)`
-Descarga el HTML del reporte y extrae el texto del `div.info-box` asociado
-al resumen de coyuntura. Retorna `NA` si no encuentra el nodo.
+### `extract_resumen(html)`
+Extrae el HTML interno del `div.info-box` asociado al resumen de coyuntura.
+Retorna HTML (no texto plano) para preservar el markup de colores de variaciones
+(`.data-positive`, `.data-negative`). Retorna `NA` si no encuentra el nodo.
 
 ### `infer_frecuencia(fechas)`
 Calcula la mediana de días entre fechas consecutivas y la clasifica:

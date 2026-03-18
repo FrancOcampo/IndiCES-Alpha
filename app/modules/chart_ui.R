@@ -14,7 +14,7 @@ chartUI <- function(id) {
 chartServer <- function(id, datos_rv, indicador_rv) {
   moduleServer(id, function(input, output, session) {
     output$grafico <- renderPlotly({
-      req(datos_rv(), indicador_rv())
+      validate(need(!is.null(datos_rv()) && !is.null(indicador_rv()), "Seleccioná un indicador para ver el gráfico."))
       datos     <- datos_rv()
       indicador <- indicador_rv()
       validate(need(nrow(datos) > 0, "No hay datos disponibles para este indicador."))
