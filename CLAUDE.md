@@ -77,7 +77,7 @@ Usar siempre `on.exit(unlink(temp))` para garantizar limpieza, no `finally`.
 
 **Estructura del Excel:**
 - Hoja `Portada`: metadatos en col 3, filas 2/3/4/6 (nombre, um, fuente, id)
-- Hoja `Data`: col 1 = fecha, col 13 (M) = `g_final` (única columna de valores a usar)
+- Hoja `Data`: col 1 = fecha, col 2 (B) = `g_original` (serie original), col 13 (M) = `g_final` (serie filtrada económicamente)
 
 **Estructura del HTML (`{codigo}_views.html`):**
 - `fetch_html(codigo)` descarga y parsea el HTML — llamar una sola vez por indicador y pasar el objeto a las funciones
@@ -86,7 +86,7 @@ Usar siempre `on.exit(unlink(temp))` para garantizar limpieza, no `finally`.
 
 **Salida — archivos RDS en `data/processed/`:**
 - `indicadores.rds`: id, nombre, unidad_medida, fuente, clasificacion_sectorial, fecha_ultimo_dato, frecuencia, resumen_coyuntura, descripcion_str, codigo_str, um_str, fuente_primaria_str
-- `datos.rds`: id_indicador, fecha, valor (sin NAs)
+- `datos.rds`: id_indicador, fecha, valor (`g_final`), valor_original (`g_original`) — ambas columnas siempre tienen la misma longitud
 - La Shiny app los consume con `readRDS("data/processed/indicadores.rds")`
 
 Ver documentación completa en `docs/etl.md`.
@@ -105,10 +105,10 @@ Ver documentación completa en `docs/etl.md`.
 
 **Módulos (en `app/modules/`):**
 - `data_loader.R` — lógica pura R: carga y filtra los RDS con paths relativos
-- `selector_ui.R` — módulo Shiny: dropdown de indicadores con filtro sectorial ("Todas" + sectores)
-- `chart_ui.R` — módulo Shiny: gráfico plotly de la serie temporal (muestra mensaje si no hay datos)
+- `selector_ui.R` — módulo Shiny: dropdown de indicadores con filtro sectorial ("Todas" + sectores). Las clasificaciones que empiezan con "Otros" siempre se ordenan al final (convención `grepl("^Otros", ...)`)
+- `chart_ui.R` — módulo Shiny: gráfico plotly con dos trazas — "Datos originales" (gris, punteado) y "Datos filtrados" (negro, sólido). Leyenda horizontal centrada debajo del gráfico
 - `metadata_ui.R` — 3 módulos: tarjetas principales, detalle, texto explicativo (coyuntura)
-- `acciones_ui.R` — botones de Ver PDF, Más información, Descargar CSV
+- `acciones_ui.R` — todos los botones (Más información, Descargar PDF, Descargar CSV) viven dentro del `renderUI`, respetan el `req()` y usan íconos SVG homogéneos (Bootstrap Icons)
 
 **Datos:** los RDS se duplican en `app/data/processed/` para deploy a shinyapps.io.
 

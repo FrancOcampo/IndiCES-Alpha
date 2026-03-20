@@ -13,16 +13,19 @@ selectorUI <- function(id) {
   tagList(
     selectizeInput(
       ns("sector"),
-      label   = "Clasificación sectorial",
+      label   = "Clasificación por eje",
       choices = NULL,
-      options = list(placeholder = "Seleccioná un sector...")
+      options = list(placeholder = "Seleccioná un eje...")
     ),
-    selectizeInput(
-      ns("indicador"),
-      label   = "Indicador",
-      choices = NULL,
-      options = list(placeholder = "Seleccioná un indicador...")
-    ),
+    tags$div(
+      style = "margin-top: 0.75rem;",
+      selectizeInput(
+        ns("indicador"),
+        label   = "Codigo | Indicador",
+        choices = NULL,
+        options = list(placeholder = "Seleccioná un indicador...")
+      ),
+    )
   )
 }
 
@@ -30,7 +33,10 @@ selectorUI <- function(id) {
 #' Recibe el tibble de indicadores y retorna un reactive con el id seleccionado
 selectorServer <- function(id, indicadores) {
   moduleServer(id, function(input, output, session) {
-    sectores <- c("Todas", sort(unique(indicadores$clasificacion_sectorial)))
+    sectores_sorted <- sort(unique(indicadores$clasificacion_sectorial))
+    otros  <- sectores_sorted[grepl("^Otros", sectores_sorted)]
+    resto  <- sectores_sorted[!grepl("^Otros", sectores_sorted)]
+    sectores <- c("Todas", resto, otros)
     updateSelectizeInput(session, "sector", choices = sectores, selected = "Producto y actividad económica")
 
     observe({

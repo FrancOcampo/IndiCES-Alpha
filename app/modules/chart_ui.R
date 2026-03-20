@@ -1,6 +1,6 @@
 box::use(
   shiny[NS, moduleServer, req, validate, need],
-  plotly[plot_ly, layout, plotlyOutput, renderPlotly, config],
+  plotly[plot_ly, add_trace, layout, plotlyOutput, renderPlotly, config],
 )
 
 #' UI del grafico de serie temporal
@@ -19,19 +19,60 @@ chartServer <- function(id, datos_rv, indicador_rv) {
       indicador <- indicador_rv()
       validate(need(nrow(datos) > 0, "No hay datos disponibles para este indicador."))
 
-      plot_ly(datos, x = ~fecha, y = ~valor, type = "scatter", mode = "lines",
-        line    = list(color = "#000", width = 2),
-        hovertemplate = paste0("<b>%{x|%b %Y}</b><br>", indicador$unidad_medida, ": %{y}<extra></extra>")
-      ) |>
+      hovertemplate <- paste0("<b>%{x|%b %Y}</b><br>", indicador$unidad_medida, ": %{y}<extra></extra>")
+
+      plot_ly(datos, x = ~fecha) |>
+        add_trace(
+          y             = ~valor_original,
+          name          = "Datos originales",
+          type          = "scatter", mode = "lines",
+          line          = list(color = "#adb5bd", width = 1.5),
+          hovertemplate = hovertemplate
+        ) |>
+        add_trace(
+          y             = ~valor,
+          name          = "Datos filtrados",
+          type          = "scatter", mode = "lines",
+          line          = list(color = "#000", width = 1.5),
+          hovertemplate = hovertemplate
+        ) |>
         layout(
-          title  = list(text = indicador$nombre, font = list(size = 14)),
-          xaxis  = list(title = "", showgrid = TRUE),
-          yaxis  = list(title = indicador$unidad_medida, showgrid = TRUE, gridcolor = "#e9ecef"),
+          title      = list(text = indicador$nombre, font = list(size = 14)),
+          xaxis      = list(title = "", showgrid = TRUE),
+          yaxis      = list(title = indicador$unidad_medida, showgrid = TRUE, gridcolor = "#e9ecef"),
+          legend     = list(orientation = "h", x = 0.5, xanchor = "center", y = -0.15),
+          showlegend = TRUE,
           paper_bgcolor = "white",
           plot_bgcolor  = "white",
           margin = list(t = 50)
         ) |>
         config(displayModeBar = FALSE)
+      # TOMAR EJEMPLO DE ACA PARA HACER LA RECESION EN SANTA FE
+      # plot_ly(datos, x = ~fecha) |>
+      #   add_trace(
+      #     y         = ~indicador,
+      #     name      = "Indicador",
+      #     type      = "scatter", mode = "lines",
+      #     line      = list(color = "#000", width = 1.5)
+      #   ) |>
+      #   add_trace(
+      #     y         = ~recesion,           # tus 0s y 1s
+      #     name      = "Recesiones SF",
+      #     type      = "scatter", mode = "none",
+      #     fill      = "tozeroy",
+      #     fillcolor = "rgba(0, 0, 0, 0.15)",
+      #     yaxis     = "y2"
+      #   ) |>
+      #   layout(
+      #     yaxis  = list(title = "tu unidad"),
+      #     yaxis2 = list(
+      #       overlaying  = "y",
+      #       side        = "right",
+      #       range       = c(0, 1),
+      #       showticklabels = FALSE,
+      #       showgrid    = FALSE
+      #     )
+      #   )
     })
   })
 }

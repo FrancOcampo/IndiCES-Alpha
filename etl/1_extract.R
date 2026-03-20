@@ -62,16 +62,6 @@ fetch_html <- function(codigo) {
   read_html(build_html_url(codigo))
 }
 
-# Versión original (toma codigo, descarga el HTML internamente):
-# extract_resumen <- function(codigo) {
-#   html <- read_html(build_html_url(codigo))
-#   nodo <- html_element(
-#     html,
-#     xpath = "//h2[normalize-space(.)='Resumen de coyuntura']/following-sibling::div[contains(@class,'info-box')][1]"
-#   )
-#   html_text2(nodo)
-# }
-
 #' Extrae el texto del div.info-box que sigue al h2 "Resumen de coyuntura"
 #' Recibe el objeto html ya parseado. Retorna un string o NA si no se encuentra.
 extract_resumen <- function(html) {
@@ -138,7 +128,8 @@ extract_serie <- function(path, id_indicador) {
   tibble(
     id_indicador = id_indicador,
     fecha        = parse_fecha(data[[1]]),
-    valor        = data[[13]],  # columna M = g_final
+    valor        = data[[13]], # columna M = g_final
+    valor_original = data[[2]] # columna B = g_original
   ) |>
     filter(!is.na(valor), !is.na(fecha))
 }
