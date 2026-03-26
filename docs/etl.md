@@ -3,7 +3,7 @@
 Módulo encargado de obtener, limpiar y estructurar los datos de los indicadores
 económicos publicados por el CES Santa Fe.
 
-**Archivo:** `etl/1_extract.R`
+**Archivo:** `etl/pipeline-core.R`
 
 ---
 

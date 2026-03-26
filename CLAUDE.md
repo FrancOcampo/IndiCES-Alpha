@@ -65,7 +65,7 @@ Usar siempre `on.exit(unlink(temp))` para garantizar limpieza, no `finally`.
 
 ---
 
-## Arquitectura del ETL (`etl/1_extract.R`)
+## Arquitectura del ETL (`etl/pipeline-core.R`)
 
 **Fuente de códigos:**
 - API de GitHub: `https://api.github.com/repos/ces-bcsf/CicSFE_GitHub/contents/indicadores`

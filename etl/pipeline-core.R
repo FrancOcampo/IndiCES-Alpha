@@ -17,7 +17,8 @@ OUTPUT_DIR  <- "data/processed"
 
 # FUNCIONES ####
 
-#' Obtiene dinamicamente los codigos de todos los indicadores desde la API de GitHub
+#' Obtiene los codigos de todos los indicadores disponibles desde la API de GitHub.
+#' Filtra los archivos `_out.xlsx` y excluye los prefijados con `HP_` (no son series).
 #' Retorna un vector de strings con los codigos (ej: "ARG-IL5", "SFE-RMP")
 fetch_codigos <- function() {
   archivos <- fromJSON(GITHUB_API)
@@ -26,25 +27,27 @@ fetch_codigos <- function() {
   sub("_out\\.xlsx$", "", xlsx)
 }
 
-#' Construye la URL del Excel dado el codigo del indicador
+#' Construye la URL del Excel para el indicador dado
 build_excel_url <- function(codigo) {
   paste0(BASE_URL, "/", codigo, "_out.xlsx")
 }
 
-#' Construye la URL del HTML dado el codigo del indicador
+#' Construye la URL del HTML de vistas para el indicador dado
 build_html_url <- function(codigo) {
   paste0(BASE_URL, "/", codigo, "_views.html")
 }
 
-#' Descarga el Excel a un archivo temporal y retorna su path
+#' Descarga el Excel desde `url` a un archivo temporal y retorna su path.
+#' El llamador es responsable de limpiar el temp con `on.exit(unlink(temp))`.
 download_excel <- function(url) {
   temp <- tempfile(fileext = ".xlsx")
   download.file(url, temp, mode = "wb", quiet = TRUE)
   temp
 }
 
-#' Extrae los metadatos desde la hoja Portada
-#' Retorna un tibble de 1 fila: id, nombre, unidad_medida, fuente
+#' Extrae los metadatos del indicador desde la hoja `Portada` del Excel.
+#' Lee la columna 3, filas 2/3/4/5/6 (nombre, unidad_medida, fuente, clasificacion, id).
+#' Retorna un tibble de 1 fila: id, nombre, unidad_medida, fuente, clasificacion_sectorial
 extract_metadata <- function(path) {
   portada <- read_excel(path, sheet = "Portada", col_names = FALSE)
 
@@ -57,7 +60,8 @@ extract_metadata <- function(path) {
   )
 }
 
-#' Descarga y parsea el HTML del indicador. Retorna el objeto html de rvest.
+#' Descarga y parsea el HTML de vistas del indicador.
+#' Llamar una sola vez por indicador y pasar el objeto resultante a las funciones `extract_*`.
 fetch_html <- function(codigo) {
   read_html(build_html_url(codigo))
 }
@@ -81,18 +85,24 @@ extract_descripcion <- function(html) {
   trimws(sub("^[^|]+\\|", "", texto))
 }
 
+#' Extrae el codigo del indicador desde el HTML ya parseado
+#' Busca el <h3> cuyo <b> dice "Código" y retorna el texto después del |
 extract_codigo_str <- function(html) {
   nodo  <- html_element(html, xpath = "//h3[b[normalize-space(.)='Código']]")
   texto <- html_text2(nodo)
   trimws(sub("^[^|]+\\|", "", texto))
 }
 
+#' Extrae la unidad de medida del indicador desde el HTML ya parseado
+#' Busca el <h3> cuyo <b> dice "Unidad de medida" y retorna el texto después del |
 extract_um_str <- function(html) {
   nodo  <- html_element(html, xpath = "//h3[b[normalize-space(.)='Unidad de medida']]")
   texto <- html_text2(nodo)
   trimws(sub("^[^|]+\\|", "", texto))
 }
 
+#' Extrae la fuente primaria del indicador desde el HTML ya parseado
+#' Busca el <h3> cuyo <b> dice "Fuente primaria" y retorna el texto después del |
 extract_fuente_primaria_str <- function(html) {
   nodo  <- html_element(html, xpath = "//h3[b[normalize-space(.)='Fuente primaria']]")
   texto <- html_text2(nodo)
@@ -182,7 +192,7 @@ write_output <- function(series) {
   saveRDS(series$datos,       file.path(OUTPUT_DIR, "datos.rds"))
 }
 
-#' Carga todos los indicadores del vector INDICADORES
+#' Procesa todos los indicadores del vector de codigos dado
 #' Retorna una lista con $indicadores (tibble) y $datos (tibble)
 load_all_indicators <- function(codigos) {
   resultados <- map(codigos, process_indicator)
