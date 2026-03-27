@@ -19,7 +19,7 @@ GitHub Actions (cron lunes 9:00 AM ARG)
   Setup R 4.5.0 + renv
         │
         ▼
-  Rscript etl/1_extract.R
+  Rscript etl/pipeline-core.R
         │
         ▼
   Copiar RDS → app/data/processed/
@@ -76,7 +76,7 @@ paquetes en cada ejecución — solo se reinstala si cambia `renv.lock`.
 
 ### 4. Ejecutar ETL
 ```yaml
-- run: Rscript etl/1_extract.R
+- run: Rscript etl/pipeline-core.R
 ```
 Si el script falla (error de R), el workflow se detiene aquí.
 No se commitean ni deployan datos rotos.

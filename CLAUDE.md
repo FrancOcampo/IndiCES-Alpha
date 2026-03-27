@@ -150,7 +150,7 @@ IndiCES-Alpha/
 │       ├── styles.css     # CSS responsivo
 │       └── app.js         # JS menú hamburguesa
 ├── etl/
-│   └── 1_extract.R        # extracción y estructurado de datos
+│   └── pipeline-core.R    # extracción y estructurado de datos
 ├── data/
 │   └── processed/
 │       ├── indicadores.rds  # generado por el ETL
@@ -172,7 +172,7 @@ IndiCES-Alpha/
 ## CI/CD
 
 El ETL corre automáticamente cada lunes via GitHub Actions (`.github/workflows/etl.yml`):
-1. Ejecuta `etl/1_extract.R`
+1. Ejecuta `etl/pipeline-core.R`
 2. Copia los RDS a `app/data/processed/`
 3. Commitea los datos si cambiaron
 4. Redeploya a shinyapps.io
@@ -202,7 +202,7 @@ Ver documentación completa en `docs/ci-cd.md`.
 - No commitear sin que el usuario lo pida explícitamente
 - Cuando se modifique el ETL, regenerar los RDS y copiarlos a `app/data/processed/`:
   ```r
-  source("etl/1_extract.R")
+  source("etl/pipeline-core.R")
   file.copy("data/processed/indicadores.rds", "app/data/processed/indicadores.rds", overwrite = TRUE)
   file.copy("data/processed/datos.rds",       "app/data/processed/datos.rds",       overwrite = TRUE)
   ```
